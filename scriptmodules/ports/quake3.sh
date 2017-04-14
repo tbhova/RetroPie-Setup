@@ -11,6 +11,7 @@
 
 rp_module_id="quake3"
 rp_module_desc="Quake 3"
+rp_module_licence="GPL2 https://raw.githubusercontent.com/raspberrypi/quake3/master/COPYING.txt"
 rp_module_section="opt"
 rp_module_flags="!x86 !mali"
 
@@ -19,9 +20,7 @@ function depends_quake3() {
 }
 
 function sources_quake3() {
-    gitPullOrClone "$md_build" https://github.com/raspberrypi/quake3.git
-    sed -i "s#/opt/bcm-rootfs##g" build.sh
-    sed -i "s/^CROSS_COMPILE/#CROSS_COMPILE/" build.sh
+    gitPullOrClone "$md_build" https://github.com/RetroPie/quake3.git
 }
 
 function build_quake3() {

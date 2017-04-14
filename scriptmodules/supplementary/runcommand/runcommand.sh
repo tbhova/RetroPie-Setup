@@ -91,6 +91,9 @@ function get_config() {
         iniGet "disable_menu"
         DISABLE_MENU="$ini_value"
         [[ "$DISABLE_MENU" -eq 1 ]] && DISABLE_JOYSTICK=1
+        iniGet "image_delay"
+        IMAGE_DELAY="$ini_value"
+        [[ -z "$IMAGE_DELAY" ]] && IMAGE_DELAY=2
     fi
 
     if [[ -f "$TVSERVICE" ]]; then
@@ -376,7 +379,7 @@ function load_mode_defaults() {
             default_mode set vid_rom "$mode"
             MODE_REQ_ID="$mode"
         else
-            mode="$(default_mode get vid_rom_old)"
+            mode="$(default_mode get vid_rom)"
             [[ -n "$mode" ]] && MODE_REQ_ID="$mode"
         fi
 
@@ -775,7 +778,7 @@ function retroarch_append_config() {
     # append any NETPLAY configuration
     if [[ "$NETPLAY" -eq 1 ]] && [[ -f "$RETRONETPLAY_CONF" ]]; then
         source "$RETRONETPLAY_CONF"
-        COMMAND+=" -$__netplaymode $__netplayhostip_cfile --port $__netplayport --frames $__netplayframes --nick $__netplaynickname"
+        COMMAND+=" -$__netplaymode $__netplayhostip_cfile --port $__netplayport --nick $__netplaynickname"
     fi
 }
 
@@ -896,8 +899,9 @@ function show_launch() {
         if [[ -n "$DISPLAY" ]]; then
             feh -F -N -Z -Y -q "$image" & &>/dev/null
             IMG_PID=$!
+            sleep "$IMAGE_DELAY"
         else
-            fbi -1 -t 2 -noverbose -a "$image" </dev/tty &>/dev/null
+            fbi -1 -t "$IMAGE_DELAY" -noverbose -a "$image" </dev/tty &>/dev/null
         fi
     elif [[ "$DISABLE_MENU" -ne 1 && "$USE_ART" -ne 1 ]]; then
         local launch_name

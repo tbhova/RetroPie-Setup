@@ -11,6 +11,7 @@
 
 rp_module_id="emulationstation"
 rp_module_desc="EmulationStation - Frontend used by RetroPie for launching emulators"
+rp_module_licence="MIT https://raw.githubusercontent.com/RetroPie/EmulationStation/master/LICENSE.md"
 rp_module_section="core"
 rp_module_flags="frontend"
 
@@ -79,7 +80,7 @@ function _del_system_emulationstation() {
     local fullname="$1"
     local name="$2"
     if [[ -f /etc/emulationstation/es_systems.cfg ]]; then
-        xmlstarlet ed -L -P -d "/systemList/system[name='$system']" /etc/emulationstation/es_systems.cfg
+        xmlstarlet ed -L -P -d "/systemList/system[name='$name']" /etc/emulationstation/es_systems.cfg
     fi
 }
 

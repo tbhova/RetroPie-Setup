@@ -12,6 +12,7 @@
 rp_module_id="snesdev"
 rp_module_desc="SNESDev (Driver for the RetroPie GPIO-Adapter)"
 rp_module_section="driver"
+rp_module_flags="noinstclean"
 
 function sources_snesdev() {
     gitPullOrClone "$md_inst" https://github.com/petrockblog/SNESDev-RPi.git
@@ -88,17 +89,17 @@ function gui_snesdev() {
         case $choices in
             1)
                 enable_at_start_snesdev 3
-                make -C "$md_inst" make installservice
+                make -C "$md_inst" installservice
                 printMsgs "dialog" "Enabled SNESDev on boot (polling pads and button)."
                 ;;
             2)
                 enable_at_start_snesdev 1
-                make -C "$md_inst" make installservice
+                make -C "$md_inst" installservice
                 printMsgs "dialog" "Enabled SNESDev on boot (polling only pads)."
                 ;;
             3)
                 enable_at_start_snesdev 2
-                make -C "$md_inst" make installservice
+                make -C "$md_inst" installservice
                 printMsgs "dialog" "Enabled SNESDev on boot (polling only button)."
                 ;;
             4)

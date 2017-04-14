@@ -12,11 +12,14 @@
 rp_module_id="vice"
 rp_module_desc="C64 emulator VICE"
 rp_module_help="ROM Extensions: .crt .d64 .g64 .prg .t64 .tap .x64 .zip .vsf\n\nCopy your Commodore 64 games to $romdir/c64"
+rp_module_licence="GPL2 http://svn.code.sf.net/p/vice-emu/code/trunk/vice/COPYING"
 rp_module_section="opt"
 rp_module_flags=""
 
 function depends_vice() {
-    getDepends libsdl2-dev libmpg123-dev libpng12-dev zlib1g-dev libasound2-dev libvorbis-dev libflac-dev libpcap-dev automake checkinstall bison flex subversion libjpeg-dev
+    local depends=(libsdl2-dev libmpg123-dev libpng12-dev zlib1g-dev libasound2-dev libvorbis-dev libflac-dev libpcap-dev automake checkinstall bison flex subversion libjpeg-dev portaudio19-dev)
+    isPlatform "x11" && depends+=(libpulse-dev)
+    getDepends "${depends[@]}"
 }
 
 function sources_vice() {

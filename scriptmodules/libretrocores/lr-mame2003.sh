@@ -12,12 +12,11 @@
 rp_module_id="lr-mame2003"
 rp_module_desc="Arcade emu - MAME 0.78 port for libretro"
 rp_module_help="ROM Extension: .zip\n\nCopy your MAME roms to either $romdir/mame-libretro or\n$romdir/arcade"
+rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/mame2003-libretro/master/docs/mame.txt"
 rp_module_section="main"
 
 function sources_lr-mame2003() {
     gitPullOrClone "$md_build" https://github.com/libretro/mame2003-libretro.git
-    # quieter build
-    sed -i "s/-Wcast-align//" Makefile
 }
 
 function build_lr-mame2003() {
@@ -58,8 +57,8 @@ function configure_lr-mame2003() {
     mkUserDir "$biosdir/mame2003/samples"
 
     # copy hiscore.dat
-    cp "$md_inst/metadata/hiscore.dat" "$biosdir/mame2003/"
-    chown $user:$user "$biosdir/mame2003/hiscore.dat"
+    cp "$md_inst/metadata/"{hiscore.dat,cheat.dat} "$biosdir/mame2003/"
+    chown $user:$user "$biosdir/mame2003/"{hiscore.dat,cheat.dat}
 
     # Set core options
     setRetroArchCoreOption "mame2003-skip_disclaimer" "enabled"

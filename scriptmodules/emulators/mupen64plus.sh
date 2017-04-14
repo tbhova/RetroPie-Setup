@@ -12,11 +12,12 @@
 rp_module_id="mupen64plus"
 rp_module_desc="N64 emulator MUPEN64Plus"
 rp_module_help="ROM Extensions: .z64 .n64 .v64\n\nCopy your N64 roms to $romdir/n64"
+rp_module_licence="GPL2 https://raw.githubusercontent.com/mupen64plus/mupen64plus-core/master/LICENSES"
 rp_module_section="main"
 rp_module_flags="!mali"
 
 function depends_mupen64plus() {
-    local depends=(cmake libgl1-mesa-dev libsamplerate0-dev libspeexdsp-dev libsdl2-dev)
+    local depends=(cmake libsamplerate0-dev libspeexdsp-dev libsdl2-dev)
     isPlatform "x11" && depends+=(libglew-dev libglu1-mesa-dev libboost-filesystem-dev)
     getDepends "${depends[@]}"
 }
@@ -34,7 +35,6 @@ function sources_mupen64plus() {
             'gizmo98 audio-omx'
             'ricrpi video-gles2rice pandora-backport'
             'ricrpi video-gles2n64'
-            'gizmo98 video-videocore'
         )
     else
         repos+=(
@@ -53,6 +53,9 @@ function sources_mupen64plus() {
     gitPullOrClone "$md_build/GLideN64" https://github.com/gonetz/GLideN64.git
     # fix for static x86_64 libs found in repo which are not usefull if target is i686
     isPlatform "x11" && sed -i "s/BCMHOST/UNIX/g" GLideN64/src/GLideNHQ/CMakeLists.txt
+    
+    local config_version=$(grep -oP '(?<=CONFIG_VERSION_CURRENT ).+?(?=U)' GLideN64/src/Config.h)
+    echo "$config_version" > "$md_build/GLideN64_config_version.ini"
 }
 
 function build_mupen64plus() {
@@ -75,9 +78,9 @@ function build_mupen64plus() {
     done
 
     # build GLideN64
-    $md_build/GLideN64/src/getRevision.sh
-    pushd $md_build/GLideN64/projects/cmake
-    params=("-DMUPENPLUSAPI=On" "-DVEC4_OPT=On")
+    "$md_build/GLideN64/src/getRevision.sh"
+    pushd "$md_build/GLideN64/projects/cmake"
+    params=("-DMUPENPLUSAPI=On")
     isPlatform "neon" && params+=("-DNEON_OPT=On")
     isPlatform "rpi3" && params+=("-DCRC_ARMV8=On")
     cmake "${params[@]}" ../../src/
@@ -98,7 +101,6 @@ function build_mupen64plus() {
             'mupen64plus-video-gles2rice/projects/unix/mupen64plus-video-rice.so'
             'mupen64plus-video-gles2n64/projects/unix/mupen64plus-video-n64.so'
             'mupen64plus-audio-omx/projects/unix/mupen64plus-audio-omx.so'
-            'mupen64plus-video-videocore/projects/unix/mupen64plus-video-videocore.so'
         )
     else
         md_ret_require+=(
@@ -125,6 +127,7 @@ function install_mupen64plus() {
     done
     cp "$md_build/GLideN64/ini/GLideN64.custom.ini" "$md_inst/share/mupen64plus/"
     cp "$md_build/GLideN64/projects/cmake/plugin/release/mupen64plus-video-GLideN64.so" "$md_inst/lib/mupen64plus/"
+    cp "$md_build/GLideN64_config_version.ini" "$md_inst/share/mupen64plus/"
     # remove default InputAutoConfig.ini. inputconfigscript writes a clean file
     rm -f "$md_inst/share/mupen64plus/InputAutoCfg.ini"
 }
@@ -141,7 +144,6 @@ function configure_mupen64plus() {
             addEmulator 0 "${md_id}-gles2rice$name" "n64" "$md_inst/bin/mupen64plus.sh mupen64plus-video-rice %ROM% $res"
         done
         addEmulator 0 "${md_id}-gles2n64" "n64" "$md_inst/bin/mupen64plus.sh mupen64plus-video-n64 %ROM%"
-        addEmulator 0 "${md_id}-videocore" "n64" "$md_inst/bin/mupen64plus.sh mupen64plus-video-videocore %ROM%"
     else
         addEmulator 0 "${md_id}-GLideN64" "n64" "$md_inst/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM%"
         addEmulator 0 "${md_id}-GLideN64-GL3-3" "n64" "MESA_GL_VERSION_OVERRIDE=3.3COMPAT $md_inst/bin/mupen64plus.sh mupen64plus-video-GLideN64 %ROM%"
@@ -192,11 +194,11 @@ function configure_mupen64plus() {
             echo "[Video-GLideN64]" >> "$config"
         fi
         # Settings version. Don't touch it.
-        iniSet "configVersion" "16"
+        iniSet "configVersion" "17"
         # Bilinear filtering mode (0=N64 3point, 1=standard)
         iniSet "bilinearMode" "1"
         # Size of texture cache in megabytes. Good value is VRAM*3/4
-        iniSet "CacheSize" "192"
+        iniSet "CacheSize" "50"
         # Disable FB emulation until visual issues are sorted out
         iniSet "EnableFBEmulation" "False"
         # Use native res

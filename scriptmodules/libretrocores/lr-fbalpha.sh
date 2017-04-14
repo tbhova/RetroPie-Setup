@@ -12,6 +12,7 @@
 rp_module_id="lr-fbalpha"
 rp_module_desc="Arcade emu - Final Burn Alpha (v0.2.97.39) port for libretro"
 rp_module_help="Previously called lr-fba-next\n\ROM Extension: .zip\n\nCopy your FBA roms to\n$romdir/fba or\n$romdir/neogeo or\n$romdir/arcade\n\nFor NeoGeo games the neogeo.zip BIOS is required and must be placed in the same directory as your FBA roms."
+rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/fbalpha/master/src/license.txt"
 rp_module_section="main"
 
 function _update_hook_lr-fbalpha() {
@@ -36,6 +37,7 @@ function install_lr-fbalpha() {
         'gamelist.txt'
         'whatsnew.html'
         'preset-example.zip'
+        'metadata'
     )
 }
 
@@ -49,6 +51,10 @@ function configure_lr-fbalpha() {
     # Create samples directory
     mkUserDir "$biosdir/fba"
     mkUserDir "$biosdir/fba/samples"
+
+    # copy hiscore.dat
+    cp "$md_inst/metadata/hiscore.dat" "$biosdir/fba/"
+    chown $user:$user "$biosdir/fba/hiscore.dat"
 
     # Set core options
     setRetroArchCoreOption "fba-diagnostic-input" "Hold Start"

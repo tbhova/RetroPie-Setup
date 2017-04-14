@@ -76,6 +76,11 @@ function gui_esthemes() {
         'robertybob simplebigart'
         'RetroPie clean-look'
         'HerbFargus tronkyfran'
+        'lilbud flat'
+        'lilbud flat-dark'
+        'FlyingTomahawk futura-10px'
+        'FlyingTomahawk futura-10px-dark'
+        'G-rila fundamental'
     )
     while true; do
         local theme

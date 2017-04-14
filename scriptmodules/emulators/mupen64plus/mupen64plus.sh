@@ -130,7 +130,7 @@ function remap() {
 }
 
 function setAudio() {
-    if [[ "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" == *BCM27* ]]; then
+    if [[ "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" == *BCM* ]]; then
         # If a raspberry pi is used try to set the right output and use audio omx if possible
         local audio_device=$(amixer)
         if [[ "$audio_device" == *PCM* ]]; then
@@ -211,6 +211,7 @@ function testCompatibility() {
         empire
         beetle
         donkey
+        zelda
     )
 
     local GLideN64NativeResolution_blacklist=(
@@ -230,15 +231,24 @@ function testCompatibility() {
             fi
             iniConfig " = " "" "$config"
             # Settings version. Don't touch it.
-            iniSet "configVersion" "16"
+            local config_version="17"
+            if [[ -f "$configdir/n64/GLideN64_config_version.ini" ]]; then
+                config_version=$(<"$configdir/n64/GLideN64_config_version.ini")
+            fi
+            iniSet "configVersion" "$config_version"
+            # Size of texture cache in megabytes. Good value is VRAM*3/4
+            iniSet "CacheSize" "50"
+            # Enable FPS Counter. Fixes zelda depth issue
+            iniSet "ShowFPS " "True"
+            iniSet "fontSize" "14"
             # Enable FBEmulation if necessary
-            iniSet "EnableFBEmulation" "False"
-            for game in "${GLideN64FBEMU_whitelist[@]}"; do
-                if [[ "${ROM,,}" == *"$game"* ]]; then
-                    iniSet "EnableFBEmulation" "True"
-                    break
-                fi
-            done
+            iniSet "EnableFBEmulation" "True"
+            #for game in "${GLideN64FBEMU_whitelist[@]}"; do
+            #    if [[ "${ROM,,}" == *"$game"* ]]; then
+            #        iniSet "EnableFBEmulation" "True"
+            #        break
+            #    fi
+            #done
             # Set native resolution factor of 1
             iniSet "UseNativeResolutionFactor" "1"
             for game in "${GLideN64NativeResolution_blacklist[@]}"; do
@@ -284,7 +294,7 @@ getAutoConf mupen64plus_hotkeys && remap
 getAutoConf mupen64plus_compatibility_check && testCompatibility
 getAutoConf mupen64plus_audio && setAudio
 
-if [[ "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" == *BCM27* ]]; then
+if [[ "$(sed -n '/^Hardware/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)" == BCM* ]]; then
     # If a raspberry pi is used lower resolution to 320x240 and enable SDL dispmanx scaling mode 1
     SDL_VIDEO_RPI_SCALE_MODE=1 "$rootdir/emulators/mupen64plus/bin/mupen64plus" --noosd --windowed $RES --rsp ${RSP_PLUGIN}.so --gfx ${VIDEO_PLUGIN}.so --audio ${AUDIO_PLUGIN}.so --configdir "$configdir/n64" --datadir "$configdir/n64" "$ROM"
 else

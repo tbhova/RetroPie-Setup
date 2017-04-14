@@ -12,6 +12,7 @@
 rp_module_id="lr-dinothawr"
 rp_module_desc="Dinothawr - standalone libretro puzzle game"
 rp_module_help="Dinothawr game assets are automatically installed to $romdir/ports/dinothawr/"
+rp_module_licence="NONCOM https://raw.githubusercontent.com/libretro/Dinothawr/master/LICENSE"
 rp_module_section="exp"
 
 function sources_lr-dinothawr() {
@@ -20,7 +21,12 @@ function sources_lr-dinothawr() {
 
 function build_lr-dinothawr() {
     make clean
-    make
+    # libretro-common has an issue with neon
+    if isPlatform "neon"; then
+        CFLAGS="" make
+    else
+        make
+    fi
     md_ret_require="$md_build/dinothawr_libretro.so"
 }
 

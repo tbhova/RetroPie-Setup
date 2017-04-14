@@ -11,6 +11,7 @@
 
 rp_module_id="kodi"
 rp_module_desc="Kodi - Open source home theatre software"
+rp_module_licence="GPL2 https://raw.githubusercontent.com/xbmc/xbmc/master/LICENSE.GPL"
 rp_module_section="opt"
 rp_module_flags="!mali !osmc !xbian"
 
@@ -36,13 +37,15 @@ function depends_kodi() {
         fi
     fi
 
+    getDepends policykit-1
+
     addUdevInputRules
 }
 
 function install_bin_kodi() {
     # force aptInstall to get a fresh list before installing
     __apt_update=0
-    aptInstall kodi
+    aptInstall kodi kodi-peripheral-joystick kodi-inputstream-adaptive kodi-inputstream-rtmp
 }
 
 function remove_kodi() {
